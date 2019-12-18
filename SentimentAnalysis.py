@@ -2,6 +2,8 @@ import re
 import tweepy
 from tweepy import OAuthHandler
 from textblob import TextBlob
+import datetime
+import sys
 
 class TwitterClient(object):
 	'''
@@ -58,27 +60,43 @@ class TwitterClient(object):
 		tweets = []
 
 		try:
+
 			# call twitter api to fetch tweets
-			date_since = "2019-08-01"
-			fetched_tweets = self.api.search(q=query, count=count, since_id=date_since)
+
+			fetched_tweets = []
+			#date_since = "2019-04-01"
+			# startDate = datetime.datetime(2019, 4, 1, 0, 0, 0)
+			# endDate = datetime.datetime(2019, 5, 1, 0, 0, 0)
+
+			# tmpTweets = self.api.search(q=query, count=count)
+			# for tweet in tmpTweets:
+			# 	print(tweet)
+			# 	if tweet.created_at < endDate and tweet.created_at > startDate:
+			# 		fetched_tweets.append(tweet)
+
+			fetched_tweets = self.api.search(q=query, count=count, since = "2019-04-01")
 
 			# parsing tweets one by one
 			for tweet in fetched_tweets:
 				# empty dictionary to store required params of a tweet
 				parsed_tweet = {}
 
+				print(tweet._json['user']['location'])
+
 				# saving text of tweet
 				parsed_tweet['text'] = tweet.text
 				# saving sentiment of tweet
 				parsed_tweet['sentiment'] = self.get_tweet_sentiment(tweet.text)
+
+				#parsed_tweet['location'] = tweet.location
 
 				# appending parsed tweet to tweets list
 				if tweet.retweet_count > 0:
 					# if tweet has retweets, ensure that it is appended only once
 					if parsed_tweet not in tweets:
 						tweets.append(parsed_tweet)
-				else:
-					tweets.append(parsed_tweet)
+					else:
+						tweets.append(parsed_tweet)
 
 			# return parsed tweets
 			return tweets
@@ -90,8 +108,8 @@ class TwitterClient(object):
 def main():
 	# creating object of TwitterClient Class
 	api = TwitterClient()
-	# calling function to get tweets
 
+	# calling function to get tweets
 	candidates = ["Joe Biden",
 				  "Pete Buttigieg",
 				  "Amy Klobuchar",
